@@ -1,0 +1,32 @@
+{
+    "manifest_version": 3,
+    "name": "BeanScanner Extension",
+    "version": "1.0",
+    "permissions": ["contextMenus", "activeTab", "scripting", "storage", "tabs"],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "host_permissions": [
+      "*://*/*"
+    ],
+    "action": {
+      "default_popup": "popup.html"
+    },
+    "options_page": "options.html",
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["content.js"]
+      }
+    ],
+    "commands": {
+      "analyze": {
+        "suggested_key": {
+          "default": "Ctrl+Shift+Y",
+          "mac": "Command+Shift+Y"
+        },
+        "description": "Analyze the current page URL"
+      }
+    }
+  }
+  

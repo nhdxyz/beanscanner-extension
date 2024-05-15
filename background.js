@@ -18,7 +18,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   } else if (info.menuItemId === "openOnBeanScanner") {
     const token = info.selectionText.trim();
     if (token.length >= 32 && token.length <= 44) {
-      const url = `https://beanscanner.xyz/token/${token}`;
+      const url = `http://localhost:3000/token/${token}`;
       chrome.tabs.create({ url });
     } else {
       chrome.scripting.executeScript({
@@ -65,7 +65,7 @@ chrome.commands.onCommand.addListener((command) => {
       }
 
       if (token && token.length >= 32 && token.length <= 44) {
-        const beanScannerUrl = `https://beanscanner.xyz/token/${token}`;
+        const beanScannerUrl = `http://localhost:3000/token/${token}`;
         chrome.tabs.create({ url: beanScannerUrl });
       } else {
         chrome.scripting.executeScript({
@@ -101,9 +101,6 @@ chrome.commands.onCommand.addListener((command) => {
                 break;
               case 'BonkBot':
                 botUrl = `https://t.me/bonkbot_bot?start=ref_r3ka6_ca_${baseTokenAddress}`;
-                break;
-              case 'Bean':
-                botUrl = `https://beanscanner.xyz/token/${pairAddress}`;
                 break;
               default:
                 botUrl = `https://beanscanner.xyz/token/${baseTokenAddress}`;

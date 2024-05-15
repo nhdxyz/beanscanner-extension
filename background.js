@@ -1,44 +1,60 @@
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.contextMenus.create({
-      id: "sendToBeanScanner",
-      title: "Send to BeanScanner",
-      contexts: ["selection"]
-    });
-  
-    chrome.contextMenus.create({
-      id: "openOnBeanScanner",
-      title: "Open on BeanScanner",
-      contexts: ["selection"]
-    });
+  chrome.contextMenus.create({
+    id: "sendToBeanScanner",
+    title: "Send to BeanScanner",
+    contexts: ["selection"]
   });
-  
-  chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === "sendToBeanScanner") {
-      chrome.tabs.sendMessage(tab.id, { action: "sendToBeanScanner", text: info.selectionText });
-    } else if (info.menuItemId === "openOnBeanScanner") {
-      const token = info.selectionText.trim();
-      console.log(`Selected text: ${token}`);
-      console.log(`Token length: ${token.length}`);
-      if (token.length >= 32 && token.length <= 44) {
-        const url = `http://localhost:3000/token/${token}`;
-        chrome.tabs.create({ url });
-      } else {
-        chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          function: () => {
-            alert('The selected text is not a valid token (must be between 32 and 44 characters long).');
-          }
-        });
-      }
+
+  chrome.contextMenus.create({
+    id: "openOnBeanScanner",
+    title: "Open on BeanScanner",
+    contexts: ["selection"]
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "sendToBeanScanner") {
+    chrome.tabs.sendMessage(tab.id, { action: "sendToBeanScanner", text: info.selectionText });
+  } else if (info.menuItemId === "openOnBeanScanner") {
+    const token = info.selectionText.trim();
+    console.log(`Selected text: ${token}`);
+    console.log(`Token length: ${token.length}`);
+    if (token.length >= 32 && token.length <= 44) {
+      const url = `https://beanscanner.xyz/token/${token}`;
+      chrome.tabs.create({ url });
+    } else {
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: () => {
+          alert('The selected text is not a valid token (must be between 32 and 44 characters long).');
+        }
+      });
     }
-  });
-  
-  chrome.commands.onCommand.addListener((command) => {
-    if (command === "analyze") {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        const activeTab = tabs[0];
-        const url = new URL(activeTab.url);
-  
+  }
+});
+
+chrome.commands.onCommand.addListener((command) => {
+  if (command === "analyze") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0];
+      const url = new URL(activeTab.url);
+
+      chrome.storage.sync.get(['selectedBot'], (result) => {
+        let baseUrl;
+        switch (result.selectedBot) {
+          case 'Photon':
+            baseUrl = 'https://photon-sol.tinyastro.io/en/lp/';
+            break;
+          case 'BonkBot':
+            baseUrl = 'https://bonkbot.com/token/';
+            break;
+          case 'Bean':
+            baseUrl = 'https://beanscanner.xyz/token/';
+            break;
+          default:
+            baseUrl = 'https://beanscanner.xyz/token/';
+        }
+
         let token = null;
         if (url.hostname === 'dexscreener.com' && url.pathname.includes('/solana/')) {
           token = url.pathname.split('/solana/')[1];
@@ -49,10 +65,10 @@ chrome.runtime.onInstalled.addListener(() => {
             token = token.substring(0, queryIndex);
           }
         }
-  
+
         if (token && token.length >= 32 && token.length <= 44) {
-          const beanScannerUrl = `http://localhost:3000/token/${token}`;
-          chrome.tabs.create({ url: beanScannerUrl });
+          const fullUrl = `${baseUrl}${token}`;
+          chrome.tabs.create({ url: fullUrl });
         } else {
           chrome.scripting.executeScript({
             target: { tabId: activeTab.id },
@@ -62,6 +78,6 @@ chrome.runtime.onInstalled.addListener(() => {
           });
         }
       });
-    }
-  });
-  
+    });
+  }
+});

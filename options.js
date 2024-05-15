@@ -1,11 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     const apiUrlInput = document.getElementById('apiUrl');
+    const botSelect = document.getElementById('botSelect');
     const testMessage = "Test message from BeanScanner extension";
 
     // Load saved settings
-    chrome.storage.sync.get(['apiUrl'], (result) => {
+    chrome.storage.sync.get(['apiUrl', 'selectedBot'], (result) => {
         if (result.apiUrl) {
             apiUrlInput.value = result.apiUrl;
+        }
+        if (result.selectedBot) {
+            botSelect.value = result.selectedBot;
         }
     });
 
@@ -14,6 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const apiUrl = apiUrlInput.value;
         chrome.storage.sync.set({ apiUrl }, () => {
             alert('Settings saved');
+        });
+    });
+
+    // Save selected bot
+    document.getElementById('saveBot').addEventListener('click', () => {
+        const selectedBot = botSelect.value;
+        chrome.storage.sync.set({ selectedBot }, () => {
+            alert('Bot selection saved');
         });
     });
 

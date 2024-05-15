@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
-    id: "sendToBeanScanner",
-    title: "Send to BeanScanner",
+    id: "buy",
+    title: "Buy",
     contexts: ["selection"]
   });
 
@@ -13,8 +13,8 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "sendToBeanScanner") {
-    chrome.tabs.sendMessage(tab.id, { action: "sendToBeanScanner", text: info.selectionText });
+  if (info.menuItemId === "buy") {
+    handleAnalyzeOrOpen(info.selectionText, "buy", tab.id);
   } else if (info.menuItemId === "openOnBeanScanner") {
     handleAnalyzeOrOpen(info.selectionText, "analyze", tab.id);
   }

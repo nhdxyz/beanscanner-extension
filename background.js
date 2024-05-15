@@ -17,10 +17,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     chrome.tabs.sendMessage(tab.id, { action: "sendToBeanScanner", text: info.selectionText });
   } else if (info.menuItemId === "openOnBeanScanner") {
     const token = info.selectionText.trim();
-    console.log(`Selected text: ${token}`);
-    console.log(`Token length: ${token.length}`);
     if (token.length >= 32 && token.length <= 44) {
-      const url = `http://localhost:3000/token/${token}`;
+      const url = `https://beanscanner.xyz/token/${token}`;
       chrome.tabs.create({ url });
     } else {
       chrome.scripting.executeScript({
@@ -33,8 +31,24 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
+async function fetchTokenData(token) {
+  const endpoints = [
+    `https://api.dexscreener.com/latest/dex/tokens/${token}`,
+    `https://api.dexscreener.com/latest/dex/pairs/solana/${token}`
+  ];
+
+  for (const endpoint of endpoints) {
+    const response = await fetch(endpoint);
+    const data = await response.json();
+    if (data && data.pairs && data.pairs.length > 0) {
+      return data.pairs[0];
+    }
+  }
+  return null;
+}
+
 chrome.commands.onCommand.addListener((command) => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
     const activeTab = tabs[0];
     const url = new URL(activeTab.url);
 
@@ -51,7 +65,7 @@ chrome.commands.onCommand.addListener((command) => {
       }
 
       if (token && token.length >= 32 && token.length <= 44) {
-        const beanScannerUrl = `http://localhost:3000/token/${token}`;
+        const beanScannerUrl = `https://beanscanner.xyz/token/${token}`;
         chrome.tabs.create({ url: beanScannerUrl });
       } else {
         chrome.scripting.executeScript({
@@ -62,45 +76,57 @@ chrome.commands.onCommand.addListener((command) => {
         });
       }
     } else if (command === "buy") {
-      chrome.storage.sync.get(['selectedBot'], (result) => {
-        let baseUrl;
-        switch (result.selectedBot) {
-          case 'Photon':
-            baseUrl = 'https://photon-sol.tinyastro.io/en/lp/';
-            break;
-          case 'BonkBot':
-            baseUrl = 'https://bonkbot.com/token/';
-            break;
-          case 'Bean':
-            baseUrl = 'https://beanscanner.xyz/token/';
-            break;
-          default:
-            baseUrl = 'https://beanscanner.xyz/token/';
+      let token = null;
+      if (url.hostname === 'dexscreener.com' && url.pathname.includes('/solana/')) {
+        token = url.pathname.split('/solana/')[1];
+      } else if (url.hostname === 'photon-sol.tinyastro.io' && url.pathname.includes('/en/lp/')) {
+        token = url.pathname.split('/en/lp/')[1];
+        const queryIndex = token.indexOf('?');
+        if (queryIndex !== -1) {
+          token = token.substring(0, queryIndex);
         }
+      }
 
-        let token = null;
-        if (url.hostname === 'dexscreener.com' && url.pathname.includes('/solana/')) {
-          token = url.pathname.split('/solana/')[1];
-        } else if (url.hostname === 'photon-sol.tinyastro.io' && url.pathname.includes('/en/lp/')) {
-          token = url.pathname.split('/en/lp/')[1];
-          const queryIndex = token.indexOf('?');
-          if (queryIndex !== -1) {
-            token = token.substring(0, queryIndex);
-          }
-        }
+      if (token && token.length >= 32 && token.length <= 44) {
+        const tokenData = await fetchTokenData(token);
+        if (tokenData) {
+          const pairAddress = tokenData.pairAddress;
+          const baseTokenAddress = tokenData.baseToken.address;
 
-        if (token && token.length >= 32 && token.length <= 44) {
-          const fullUrl = `${baseUrl}${token}`;
-          chrome.tabs.create({ url: fullUrl });
+          chrome.storage.sync.get(['selectedBot'], (result) => {
+            let botUrl;
+            switch (result.selectedBot) {
+              case 'Photon':
+                botUrl = `https://photon-sol.tinyastro.io/en/lp/${pairAddress}`;
+                break;
+              case 'BonkBot':
+                botUrl = `https://t.me/bonkbot_bot?start=ref_r3ka6_ca_${baseTokenAddress}`;
+                break;
+              case 'Bean':
+                botUrl = `https://beanscanner.xyz/token/${pairAddress}`;
+                break;
+              default:
+                botUrl = `https://beanscanner.xyz/token/${baseTokenAddress}`;
+            }
+
+            chrome.tabs.create({ url: botUrl });
+          });
         } else {
           chrome.scripting.executeScript({
             target: { tabId: activeTab.id },
             function: () => {
-              alert('The extracted token is not valid (must be between 32 and 44 characters long).');
+              alert('No valid token data found.');
             }
           });
         }
-      });
+      } else {
+        chrome.scripting.executeScript({
+          target: { tabId: activeTab.id },
+          function: () => {
+            alert('The extracted token is not valid (must be between 32 and 44 characters long).');
+          }
+        });
+      }
     }
   });
 });

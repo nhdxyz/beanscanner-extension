@@ -1,52 +1,92 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>BeanScanner Settings</title>
+    <title>BeanScanner Options</title>
+    <link rel="stylesheet" href="tailwind.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
         }
-        .container {
-            padding: 20px;
+        .section {
+            position: relative;
+            margin-bottom: 1rem;
         }
-        label {
-            display: block;
-            margin: 10px 0 5px;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0 10px;
-            box-sizing: border-box;
-        }
-        .button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
+        .section-title {
+            position: absolute;
+            top: -1rem;
+            left: 0;
+            background: white;
+            padding: 0 0.5rem;
+            font-weight: bold;
+            font-size: 1.125rem; /* Equivalent to text-lg */
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>BeanScanner Settings</h2>
-        <label for="apiUrl">Discord Webhook URL</label>
-        <input type="text" id="apiUrl">
-        <button id="saveSettings" class="button">Save</button>
-        <button id="testWebhook" class="button">Test Webhook</button>
+    <div class="container mx-auto p-4 text-center w-3/4">
+        <h2 class="text-xl mb-4"><a rel="noopener noreferrer" target="_blank" class="underline" href="https://beanscanner.xyz">beanscanner extension options</a></h2>
 
-        <label for="botSelect">Select Bot to Buy With</label>
-        <select id="botSelect">
-            <option value="Photon">Photon</option>
-            <option value="BonkBot">BonkBot</option>
-        </select>
-        <button id="saveBot" class="button">Save bot</button>
+        <div class="flex justify-between mb-4">
+            <!-- Discord Webhook URL -->
+            <div class="section border border-black p-4 w-full md:w-1/2">
+                <div class="section-title">Webhook Settings</div>
+                <div class="mt-4 mb-4 text-left">
+                    <label for="apiUrl" class="block mb-2">Discord Webhook URL:</label>
+                    <input type="text" id="apiUrl" class="w-full px-3 py-2 border border-gray-300 rounded">
+                </div>
+                <button id="saveSettings" class="button bg-gray-500 text-white hover:bg-black w-full px-4 py-2 mb-4">Save</button>
+                <button id="testWebhook" class="button bg-gray-500 text-white hover:bg-black w-full px-4 py-2">Test Webhook</button>
+            </div>
+
+            <!-- Select Bot -->
+            <div class="section border border-black p-4 w-full md:w-1/2 ml-4">
+                <div class="section-title">Bot Settings</div>
+                <div class="mt-4 mb-4 text-left">
+                    <label for="botSelect" class="block mb-2">Select Bot:</label>
+                    <select id="botSelect" class="w-full px-3 py-2 border border-gray-300 rounded">
+                        <option value="Photon">Photon</option>
+                        <option value="BonkBot">BonkBot</option>
+                        <option value="Bean">Bean</option>
+                    </select>
+                </div>
+                <button id="saveBot" class="button bg-gray-500 text-white hover:bg-black w-full px-4 py-2 mb-4">Save Bot</button>
+            </div>
+        </div>
+
+        <!-- Information and Help -->
+        <div class="section border border-black p-4">
+            <div class="section-title">Information and Help</div>
+            <div class="mt-4 text-left">
+                <h4 class="font-bold mb-2">How to use</h4>
+                <p>When on sites like Dexscreener or Photon, you can use the extension to automatically analyze or try to purchase based on the set bot.</p>
+                <h4 class="font-bold mb-2 mt-4">Hotkeys</h4>
+                <p>Use <strong>CTRL-SHIFT-Y</strong> to analyze and <strong>CTRL-SHIFT-O</strong> to buy (<strong>CMD-SHIFT</strong> for mac).</p>
+                <h4 class="font-bold mb-2 mt-4">Discord Webhook</h4>
+                <p>If you have the Discord webhook set, it will also send the analyzed coin data to your webhook in an easy-to-view embed.</p>
+                <h4 class="font-bold mb-2 mt-4">Right-click Menu</h4>
+                <p>You can analyze or buy by right-clicking a selected token address and choosing the appropriate option from the context menu.</p>
+                <h4 class="font-bold mb-2 mt-4">Disclaimer</h4>
+                <p>Your Discord webhook is only stored locally. Always check the token links before buying and never connect your wallet to anything unless you're 100% sure it's a legit site. Sometimes the generated data is not 100% correct. This is only a tool to try to make it easier, but you should still make sure to do your own research.</p>
+            </div>
+        </div>
+        
+        <!-- Contact Area -->
+        <div class="section border border-black p-4">
+            <div class="section-title">Contact</div>
+            <div class="mt-4 text-left">
+                <h4 class="font-bold mb-2">Get in Touch</h4>
+                <p>I usually respond quickly. If you have any questions, concerns, or anything else, please feel free to contact me!</p>
+            </div>
+            <div class="flex w-full justify-center mt-4">
+                <div class="flex">
+                    <a rel="noopener noreferrer" target="_blank" class="text-md lg:text-md underline mx-2" href="https://x.com/nhdxyz/">x.com</a>
+                    <a rel="noopener noreferrer" target="_blank" class="text-md lg:text-md underline mx-2" href="https://discord.com/users/829394668529647637">Discord</a>
+                    <a rel="noopener noreferrer" target="_blank" class="text-md lg:text-md underline mx-2" href="https://t.me/nhdxyz">Telegram</a>
+                </div>
+            </div>
+        </div>
+
+
     </div>
     <script src="options.js"></script>
 </body>

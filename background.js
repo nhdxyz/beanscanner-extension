@@ -50,12 +50,39 @@ function extractTokenFromURL(url) {
   return null;
 }
 
+async function analyzeToken(token) {
+  try {
+    const response = await fetch(`https://api.beanscanner.xyz/api/analyze/${token}`);
+    const data = await response.json();
+    const payload = JSON.stringify(data.payload);
+    const headers = { 'Content-Type': 'application/json' };
+    const webhookUrl = await getWebhookUrl();
+    const webhookResponse = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: headers,
+      body: payload
+    });
+
+    console.log('Webhook response status:', webhookResponse.status);  // Log the response status to debug
+
+    if (webhookResponse.ok) {
+      console.log('Analysis sent to Discord.');
+    } else {
+      const errorText = await webhookResponse.text();
+      console.error('Error sending analysis to Discord:', webhookResponse.status, errorText);
+    }
+  } catch (error) {
+    console.error('Error during analysis:', error);
+  }
+}
+
 async function handleAnalyzeOrOpen(token, action, tabId) {
   token = token.trim();
   if (token.length >= 32 && token.length <= 44) {
-    const beanScannerUrl = `http://localhost:3000/token/${token}`;
     if (action === "analyze") {
+      const beanScannerUrl = `https://beanscanner.xyz/token/${token}`;
       chrome.tabs.create({ url: beanScannerUrl });
+      analyzeToken(token); // Perform analysis asynchronously without waiting
     } else if (action === "buy") {
       const tokenData = await fetchTokenData(token);
       if (tokenData) {
@@ -71,7 +98,7 @@ async function handleAnalyzeOrOpen(token, action, tabId) {
               botUrl = `https://t.me/bonkbot_bot?start=ref_r3ka6_ca_${baseTokenAddress}`;
               break;
             default:
-              botUrl = `http://localhost:3000/token/${baseTokenAddress}`;
+              botUrl = `https://beanscanner.xyz/token/${baseTokenAddress}`;
           }
           chrome.tabs.create({ url: botUrl });
         });
@@ -89,6 +116,14 @@ function showAlert(tabId, message) {
     target: { tabId },
     function: (message) => alert(message),
     args: [message]
+  });
+}
+
+async function getWebhookUrl() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(['apiUrl'], (result) => {
+      resolve(result.apiUrl);
+    });
   });
 }
 

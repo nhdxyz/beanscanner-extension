@@ -46,6 +46,9 @@ function extractTokenFromURL(url) {
       token = token.substring(0, queryIndex);
     }
     return token;
+  } else if (url.hostname === 'birdeye.so' && url.pathname.includes('/token/') && url.searchParams.get('chain') === 'solana') {
+    console.log(url.pathname.split('/token/')[1].split('?')[0]);
+    return url.pathname.split('/token/')[1].split('?')[0];
   }
   return null;
 }
@@ -63,7 +66,7 @@ async function analyzeToken(token) {
       body: payload
     });
 
-    console.log('Webhook response status:', webhookResponse.status);  // Log the response status to debug
+    console.log('Webhook response status:', webhookResponse.status);
 
     if (webhookResponse.ok) {
       console.log('Analysis sent to Discord.');

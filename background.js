@@ -95,7 +95,7 @@ async function handleAnalyzeOrOpen(token, action, tabId) {
           let botUrl;
           switch (result.selectedBot) {
             case 'Photon':
-              botUrl = `https://photon-sol.tinyastro.io/en/lp/${pairAddress}`;
+              botUrl = `https://photon-sol.tinyastro.io/en/r/@nhdxyz/${baseTokenAddress}`;
               break;
             case 'BonkBot':
               botUrl = `https://t.me/bonkbot_bot?start=ref_r3ka6_ca_${baseTokenAddress}`;

@@ -49,6 +49,8 @@ function extractTokenFromURL(url) {
   } else if (url.hostname === 'birdeye.so' && url.pathname.includes('/token/') && url.searchParams.get('chain') === 'solana') {
     console.log(url.pathname.split('/token/')[1].split('?')[0]);
     return url.pathname.split('/token/')[1].split('?')[0];
+  }  else if (url.hostname === 'www.pump.fun') {
+    return url.pathname.split('/')[1];
   }
   return null;
 }
@@ -136,6 +138,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const activeTab = tabs[0];
       const url = new URL(activeTab.url);
       const token = extractTokenFromURL(url);
+      console.log(token);
       if (token) {
         await handleAnalyzeOrOpen(token, message.action, activeTab.id);
       } else {
@@ -150,6 +153,7 @@ chrome.commands.onCommand.addListener((command) => {
     const activeTab = tabs[0];
     const url = new URL(activeTab.url);
     const token = extractTokenFromURL(url);
+    console.log(token);
     if (token) {
       await handleAnalyzeOrOpen(token, command, activeTab.id);
     } else {

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "BeanScanner",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "beanscanner.xyz | An extension to quickly analyze and buy solana tokens.",
   "permissions": [
     "contextMenus",
@@ -42,8 +42,10 @@
   "host_permissions": [
     "*://*.dexscreener.com/*",
     "*://*.photon-sol.tinyastro.io/*",
-    "*://*.birdeye.so/*"
+    "*://*.birdeye.so/*",
+    "*://*.pump.fun/*"
   ],
+  "options_page": "options.html",
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
   }
